@@ -1,0 +1,33 @@
+version: "3.0"
+services:
+  backend:
+    restart: always
+    ports:
+      - "8080:8080"
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - DB_PASSWORD=qwerty1234
+      - DB_HOST=db
+      - DB_NAME=notes
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=qwerty1234
+      - MYSQL_DATABASE=notes
+    volumes:
+      - mysql:/var/lib/mysql
+    image: mysql:8
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_PASSWORD
+      interval: 5s
+      timeout: 5s
+      retries: 55
+
+volumes:
+  mysql: {}
